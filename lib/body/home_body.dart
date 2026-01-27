@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:stock_inv/signin/firebase_service_login.dart';
-import 'package:stock_inv/signin/main_login.dart';
-import 'package:stock_inv/data/const_data.dart'; // 전역 변수 (user_email)
+import 'package:stock_inv/body/stock/stock_body.dart';
+import 'package:stock_inv/body/notice/notice_body.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../signin/main_login.dart';
 
 class HomeBody extends StatefulWidget {
   const HomeBody({super.key});
@@ -11,54 +13,78 @@ class HomeBody extends StatefulWidget {
 }
 
 class _HomeBodyState extends State<HomeBody> {
-  final AuthService _authService = AuthService();
+  int _currentIndex = 0;
 
-  // 로그아웃 처리
-  void _handleLogout() async {
-    // 1. Firebase 로그아웃
-    await _authService.signOut();
+  // 탭에 따라 보여줄 페이지 리스트
+  final List<Widget> _pages = [
+    const StockBody(),   // 첫 번째 페이지: 주식 정보
+    const NoticeBody(),  // 두 번째 페이지: 공지사항
+  ];
 
-    if (!mounted) return;
-
-    // 2. 로그인 화면으로 이동 (이전 스택 모두 제거)
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-    );
+  // 로그아웃 로직
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      if (!mounted) return;
+      // 로그인 화면으로 이동하며 스택 제거
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('로그아웃 중 오류가 발생했습니다: $e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // [추가됨] 상단 툴바 (AppBar)
       appBar: AppBar(
-        title: const Text('Inventory Home'),
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
+        title: const Text(
+          'Stock INV',
+          style: TextStyle(fontWeight: FontWeight.bold), // 굵게 강조
+        ),
+        backgroundColor: Colors.blue,
+        centerTitle: false, // false로 설정해야 타이틀이 왼쪽으로 붙습니다.
+        elevation: 1,       // 툴바 그림자 (0으로 하면 평평해짐)
         actions: [
+          // 우측 상단 로그아웃 버튼
           IconButton(
-            onPressed: _handleLogout,
+            onPressed: () => _logout(context),
             icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
+            tooltip: '로그아웃',
           ),
+          const SizedBox(width: 10), // 우측 여백 약간 추가
         ],
       ),
-      body: Center(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.verified_user, size: 80, color: Colors.green),
-              const SizedBox(height: 20),
-              const Text(
-                '환영합니다!',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
 
-              const SizedBox(height: 40),
-            ],
+      // 현재 인덱스에 해당하는 바디를 보여줌
+      body: _pages[_currentIndex],
+
+      // 하단 네비게이션 바 (프래그먼트 전환 역할)
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.show_chart),
+            label: '주식 현황',
           ),
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: '공지사항',
+          ),
+        ],
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.grey,
       ),
     );
   }

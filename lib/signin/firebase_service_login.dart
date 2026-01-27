@@ -134,7 +134,7 @@ class AuthService {
   // ------------------------------------------------------------------------
   Future<bool> verifyAccessCode(String inputCode) async {
     try {
-      DocumentSnapshot snapshot = await _firestore.collection('stock').doc('public').get();
+      DocumentSnapshot snapshot = await _firestore.collection('settings').doc('accessCode').get();
       if (!snapshot.exists) return false;
       String serverCode = snapshot.get('code').toString();
       return serverCode.trim() == inputCode.trim();
