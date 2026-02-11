@@ -27,7 +27,7 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Smart Investment System',
+                '당신의 투자 파트너',
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 40),

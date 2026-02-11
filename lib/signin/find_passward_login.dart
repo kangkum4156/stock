@@ -15,7 +15,7 @@ class _FindPasswordState extends State<FindPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset Password')),
+      appBar: AppBar(title: const Text('비밀번호 변경')),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -33,7 +33,7 @@ class _FindPasswordState extends State<FindPassword> {
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
-                labelText: 'Email',
+                labelText: '이메일',
                 border: OutlineInputBorder(),
                 suffixIcon: Icon(Icons.email),
               ),
@@ -59,7 +59,7 @@ class _FindPasswordState extends State<FindPassword> {
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Send Reset Link'),
+                child: const Text('재설정 링크 전송'),
               ),
             ),
           ],
